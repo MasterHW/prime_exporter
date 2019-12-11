@@ -11,8 +11,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
-	"gitlab.com/NebulousLabs/Sia/build"
-	sia "gitlab.com/NebulousLabs/Sia/node/api/client"
+	"gitlab.com/SiaPrime/SiaPrime/build"
+	sia "gitlab.com/SiaPrime/SiaPrime/node/api/client"
 )
 
 var (
@@ -122,10 +122,10 @@ func main() {
 
 	// Flags
 	flag.BoolVar(&debug, "debug", false, "Enable debug mode. Warning: generates a lot of output.")
-	address := flag.String("address", "127.0.0.1:9980", "Sia's API address")
-	agent := flag.String("agent", "Sia-Agent", "Sia agent")
+	address := flag.String("address", "127.0.0.1:4280", "Sia's API address")
+	agent := flag.String("agent", "SiaPrime-Agent", "SiaPrime agent")
 	refresh := flag.Int("refresh", 5, "Frequency to get Metrics from Sia (minutes)")
-	port := flag.Int("port", 9983, "Port to serve Prometheus Metrics on")
+	port := flag.Int("port", 4283, "Port to serve Prometheus Metrics on")
 	flag.StringVar(&module, "modules", "cghmrtw", "Sia Modules to monitor")
 	flag.Parse()
 
