@@ -7,12 +7,12 @@ arch = $(word 2, $(temp))
 defualt: build
 
 build: 
-	GO111MODULE=on go build -o sia_exporter *.go
+	GO111MODULE=on go build -o prime_exporter *.go
 
 install:
-	GO111MODULE=on go install -o sia_exporter *.go
+	GO111MODULE=on go install -o prime_exporter *.go
 
 release: $(PLATFORMS)
 
 $(PLATFORMS):
-	GO111MODULE=on GOOS=$(os) GOARCH=$(arch) go build -o 'sia_exporter-$(os)-$(arch)' *.go
+	GO111MODULE=on GOOS=$(os) GOARCH=$(arch) go build -o 'prime_exporter-$(os)-$(arch)' *.go
