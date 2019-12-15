@@ -1,13 +1,10 @@
-## sia_exporter, a lightweight and flexible exporter to send Sia metrics to Prometheus
-Introducing sia_exporter a lightweight and flexible metrics exporter to send Sia
-metrics to Prometheus for analysis and Grafana for graphing and alerting.
-Sia_exporter makes it easy to monitor one or many Sia instances using
-Prometheus, Grafana, and other tools.
+## prime_exporter, a lightweight and flexible exporter to send ScPrime metrics to Prometheus
+`prime_exporter` is a fork of `tbenz9`'s `sia_exporter`.
+In short, this application feeds ScPrime client data to Prometheus for data
+collection, which can then be easily fed to Grafana to make a simple and effective
+network and client dashboard.
 
-tl;dr: `sia_exporter` lets anyone create custom Sia graphs, alerts, and
-dashboards.
-
-![example dashboard](https://i.imgur.com/xHZvj5Z.png)
+![example dashboard](https://grafana.com/api/dashboards/11410/images/7292/image)
 
 ## What on Earth is Prometheus?
 Prometheus is an extremely popular metric gathering and monitoring solution.
@@ -24,75 +21,99 @@ Grafana allows you to query, visualize, alert on and understand your metrics no
 matter where they are stored. Create, explore, and share dashboards with your
 team and foster a data driven culture.
 
-## What exactly does sia_exporter do?
-Sia_exporter queries Sia's API and gathers data (metrics), then serves it over
+## What exactly does prime_exporter do?
+`prime_exporter` queries ScPrime's API and gathers data (metrics), then serves it over
 HTTP for Prometheus to consume and Grafana to graph. Prometheus consumes the
 data, organizes it into time-series values, which Grafana can then query and
 graph. The whole workflow can be broken down into 3step.
-*  Sia_exporter queries the Sia API and generates a set of metrics for
-   Prometheus to scrape. By default, this happens every 5 minutes.
-*  Prometheus server scrapes the metrics from sia_exporter and saves the data
+*  prime_exporter queries the ScPrime API and generates a set of metrics for
+   Prometheus to scrape. By default, this happens every 5 minutes (configurable
+   with flags).
+*  Prometheus server scrapes the metrics from prime_exporter and saves the data
    into its internal database. The scrape interval can be customized, but I
-recommend the same 5 minutes that the sia_exporter is being updated.
+   recommend the same 5 minutes that the prime_exporter is being updated.
 *  Grafana queries Prometheus for the data, then graphs it in customizable,
    beautiful graphs. Grafana can also generate alerts, such as emails, when
-certain conditions are met.
+   certain conditions are met.
 
-![Allowance Graphs](https://i.imgur.com/0x7oHQx.png)
+## How do I get prime_exporter?
+`prime_exporter` can be found on GitHub at
+https://github.com/MasterHW/prime_exporter/releases/ (Windows only at the moment).
+Simply download the executable and run it on the same system as your ScPrime instance.
 
-## How do I get sia_exporter?
-`Sia_exporter` can be found on GitHub at
-https://github.com/tbenz9/sia_exporter/releases. Simply download the binary for
-your Operating System and run it on the same system as your Sia instance.
-`Sia_exporter`, Prometheus, and Grafana all work on virtually all operating
-systems and architectures. Whether you're a Windows, Mac, or Linux user running
-on just about any hardware platform there should be a binary that works for you.
 
-## How do I use sia_exporter?
-`Sia_exporter` is a command-line tool and should be ready to use straight out of
+## How do I use prime_exporter?
+`prime_exporter` is a command-line tool and should be ready to use straight out of
 the box for most users.
 ```
-$> ./sia_exporter
+$> ./prime_exporter
 INFO[0000] Beginning to metrics at http://<your ip address>:9983/metrics
 ```
-Once you've got sia_exporter running you can start adding metrics to Grafana.
-Metrics are organized by Sia modules. Adding charts, graphs, and alerts are as
-simple as point and click!
 
-![Add Metrics](https://i.imgur.com/FTN3U15.png)
-
-For more advanced users sia_exporter does have a number of command-line flags to
-turn functionality on/off, adjust options, and access a remote Sia instance.
+For more advanced users prime_exporter does have a number of command-line flags to
+turn functionality on/off, adjust options, and access a remote ScPrime instance.
 ```
-$> ./sia_exporter -h
-Usage of ./sia_exporter:
+$> ./prime_exporter -h
+Usage of ./prime_exporter:
   -address string
-        Sia's API address (default "127.0.0.1:9980")
+        ScPrime's API address (default "127.0.0.1:4280")
   -agent string
-        Sia agent (default "Sia-Agent")
+        ScPrime agent (default "Sia-Agent")
   -debug
         Enable debug mode. Warning: generates a lot of output.
   -modules string
-        Sia Modules to monitor (default "cghmrtw")
+        ScPrime Modules to monitor (default "cghmrtw")
   -port int
         Port to serve Prometheus Metrics on (default 9983)
   -refresh int
-        Frequency to get Metrics from Sia (minutes) (default 5)
+        Frequency to get Metrics from ScPrime (minutes) (default 5)
 ```
+After installing prometheus, configure your prometheus.yaml file to scrape the
+new `prime_exporter` metrics.
+Below is a sample prometheus.yaml file scraping a single `prime_exporter`
+endpoint. Don't forget to change the IP address to the IP address of the node
+running prime_exporter.
+```
+$> cat /etc/prometheus/prometheus.yaml
+global:
+        scrape_interval: 300s
+scrape_configs:
+        - job_name: 'prime_exporter'
+          metrics_path: /metrics
+          static_configs:
+                  - targets: ['<localhost/your ip address>:4283']
+```
+Now log in to the Prometheus and verify its successfully scraping the
+prime_exporter metrics (for local instances, simply http://localhost:9090/metrics).
+
+![Prometheus is scraping prime_exporter](https://i.imgur.com/SEomwgE.jpg)
+
+Now install Grafana (guide here https://grafana.com/docs/grafana/latest/guides/getting_started/).
+Note: changing `http_port` to `8080` in `custom.ini` is useful for initial setup.
+If local instance, visit http://localhost:8080/ and begin configuring a new Prometheus data
+source: http://localhost:9090 will be the default URL for Prometheus.
+Now for the dashboard: a sample ScPrime Grafana dashboard is available
+here: https://grafana.com/grafana/dashboards/11410
+To use the above dashboard, head to the Dashboard import tab (http://localhost:8080/dashboard/import)
+and copy the tag `11410` in to the `Grafana.com Dashboard` section. 
+
+![Import a Dashboard](https://i.imgur.com/f0Y3yl3.jpg)
         
 ## Troubleshooting and installation details
-Verify that `sia_exporter` is gathering metrics and serving them over HTTP. This
-step verifies that `sia_exporter` is working as expected. Make sure you enter
-your private IP address of the node running sia_exporter wherever `<your ip
-address>` is shown.
+Verify that `prime_exporter` is gathering metrics and serving them over HTTP. This
+step verifies that `prime_exporter` is working as expected. If on a local instance,
+simply visit http://localhost:4283/metrics in browser and verify that numbers being
+reported are sensical (ex. consensus_height is > 55,000).
+If an external instance, enter your private IP address of the node running prime_exporter
+wherever `<your ip address>` is shown.
 ```
-$> curl -s http://<your ip address>:9983/metrics
+$> curl -s http://<your ip address>:4283/metrics
 # HELP consensus_difficulty Consensus difficulty
 # TYPE consensus_difficulty gauge
-consensus_difficulty 1.8213302339204035e+18
+consensus_difficulty 1.0224573036547688e+18
 # HELP consensus_height Consensus block height
 # TYPE consensus_height gauge
-consensus_height 229577
+consensus_height 59082
 # HELP consensus_module_loaded Is the consensus module loaded. 0=not loaded.
 1=loaded
 # TYPE consensus_module_loaded gauge
@@ -104,64 +125,33 @@ consensus_synced 1
 ... truncated
 ```
 
-This guide does not cover installing Prometheus or Grafana but both projects
-have excellent installation guides on their websites. The rest of the
-instructions assume you have Prometheus and Grafana installed and working.
-
-Configure your prometheus.yaml file to scrape the new `sia_exporter` metrics.
-Below is a sample prometheus.yaml file scraping a single `sia_exporter`
-endpoint. Don't forget to change the IP address to the IP address of the node
-running sia_exporter.
-```
-$> cat /etc/prometheus/prometheus.yaml
-global:
-        scrape_interval: 300s
-scrape_configs:
-        - job_name: 'sia_exporter'
-          metrics_path: /metrics
-          static_configs:
-                  - targets: ['<your ip address>:9983']
-```
-Now log in to the Prometheus and verify its successfully scraping the
-sia_exporter metrics.
-
-![Prometheus is scraping sia_exporter](https://i.imgur.com/R8MP4HF.png)
-
-Now log in to Grafana and start creating panels, dashboards, alerts, and acting
-on your new Sia metrics!
-
-![Sample Wallet](https://i.imgur.com/hWK2UBG.png)
-
 ## Example use cases
 Prometheus is designed to scrape thousands of endpoints quickly if you have
-multiple Sia instances running in your network you can install `sia_exporter` on
+multiple ScPrime instances running in your network you can install `prime_exporter` on
 each of them and scrape them from a single Prometheus server. For example,
-suppose you manage 10 Sia wallets, you could easily graph the balance of all 10
+suppose you manage 10 ScPrime wallets, you could easily graph the balance of all 10
 wallets on a single chart, and send an email alert when the balance gets too low
 on any single wallet.
 
 ![Sample Alert Configuration](https://i.imgur.com/xMYw1R9.png)
 
-Suppose you have 100 Sia instances and want to ensure they all have the correct
-block height, simply set up `sia_exporter` for all 100 Sia instances and graph
+Suppose you have 100 ScPrime instances and want to ensure they all have the correct
+block height, simply set up `prime_exporter` for all 100 ScPrime instances and graph
 the block height. Turn the chart red or send an alert if one of the block
 heights is different than the others.
 
 Grafana also integrates seamlessly with alerting tools such as PagerDuty, and
 AlertManager for more advanced alert use cases. It also offers cool features
 such as "kiosk" mode to keep your favorite dashboards on display in a public
-way. Got an extra tablet lying around, set it up to display your Sia status,
+way. Got an extra tablet lying around, set it up to display your ScPrime status,
 wallet balance, free space, number of uploaded files, etc.
 
 ## Like what you see? Want to see more?
-Contribute by opening a ticket or pull request, letting me know in the comments
-section below, on reddit at /u/tbenz9 or mentioning me in the Sia Discord at
-@tbenz9#2796.
-Beer money - Siacoin:
+I like making software that works; if you run in to issues, please open an issue and
+include as much information on your problem and system environment as you can.
+If you're feeling extra helpful, contribute by opening a pull request, or sharing
+ideas in the comments.
+
+Contact me on Discord @MasterHW#3493, or the original author @tbenz9#2796.
+Support for original author: Siacoin
 `f63f6c5663efd3dcee50eb28ba520661b1cd68c3fe3e09bb16355d0c11523eebef454689d8cf`
-
----
-
-<a href="https://sia.tech"><img
-src="https://files.helpdocs.io/YzA4Zq3JuM/other/1571158167508/built-with-sia-color.png"
-width="300"></a>
