@@ -47,7 +47,7 @@ Simply download the executable and run it on the same system as your ScPrime ins
 the box for most users.
 ```
 $> ./prime_exporter
-INFO[0000] Beginning to metrics at http://<your ip address>:9983/metrics
+INFO[0000] Beginning to metrics at http://<your ip address>:4283/metrics
 ```
 
 For more advanced users prime_exporter does have a number of command-line flags to
@@ -64,7 +64,7 @@ Usage of ./prime_exporter:
   -modules string
         ScPrime Modules to monitor (default "cghmrtw")
   -port int
-        Port to serve Prometheus Metrics on (default 9983)
+        Port to serve Prometheus Metrics on (default 4283)
   -refresh int
         Frequency to get Metrics from ScPrime (minutes) (default 5)
 ```
