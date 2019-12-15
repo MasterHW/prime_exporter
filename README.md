@@ -153,5 +153,6 @@ If you're feeling extra helpful, contribute by opening a pull request, or sharin
 ideas in the comments.
 
 Contact me on Discord @MasterHW#3493, or the original author @tbenz9#2796.
-Support for original author: Siacoin
+
+Siacoin (SC) donation for original author:
 `f63f6c5663efd3dcee50eb28ba520661b1cd68c3fe3e09bb16355d0c11523eebef454689d8cf`
