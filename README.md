@@ -90,11 +90,11 @@ prime_exporter metrics (for local instances, simply http://localhost:9090/metric
 
 Now install Grafana (guide here https://grafana.com/docs/grafana/latest/guides/getting_started/).
 Note: changing `http_port` to `8080` in `custom.ini` is useful for initial setup.
+
 If local instance, visit http://localhost:8080/ and begin configuring a new Prometheus data
-source: http://localhost:9090 will be the default URL for Prometheus.
-Now for the dashboard: a sample ScPrime Grafana dashboard is available
-here: https://grafana.com/grafana/dashboards/11410
-To use the above dashboard, head to the Dashboard import tab (http://localhost:8080/dashboard/import)
+source (http://localhost:9090 will be the default URL for Prometheus).
+For the dashboard, a sample ScPrime Grafana dashboard is available here: https://grafana.com/grafana/dashboards/11410
+To use the dashboard, head to the Dashboard import tab (http://localhost:8080/dashboard/import)
 and copy the tag `11410` in to the `Grafana.com Dashboard` section. 
 
 ![Import a Dashboard](https://i.imgur.com/f0Y3yl3.jpg)
