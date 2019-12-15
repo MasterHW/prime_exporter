@@ -12,7 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/SiaPrime/SiaPrime/build"
-	sia "gitlab.com/SiaPrime/SiaPrime/node/api/client"
+	scprime "gitlab.com/SiaPrime/SiaPrime/node/api/client"
 )
 
 var (
@@ -22,8 +22,7 @@ var (
 	log *logrus.Logger
 )
 
-//initSiaClient sets the values of the client so we can communicate with the
-//Sia Daemon.
+//Sets the values of the client so we can communicate with the ScPrime Daemon.
 func findPassword() string {
 	// Check environment variables
 	apiPassword := os.Getenv("SIA_API_PASSWORD")
@@ -33,8 +32,8 @@ func findPassword() string {
 	}
 
 	// Check .apipassword file
-	var siaDir = build.DefaultSiaDir()
-	pw, err := ioutil.ReadFile(build.APIPasswordFile(siaDir))
+	var scprimeDir = build.DefaultSiaDir()
+	pw, err := ioutil.ReadFile(build.APIPasswordFile(scprimeDir))
 	if err != nil {
 		log.Info("Could not read API password file:", err)
 		return ""
@@ -66,46 +65,46 @@ func boolToFloat64(b bool) float64 {
 	return float64(0)
 }
 
-// startMonitor refreshes the Sia metrics periodically as defined by refreshRate
-func startMonitor(refreshRate time.Duration, sc *sia.Client) {
+// startMonitor refreshes the ScPrime metrics periodically as defined by refreshRate
+func startMonitor(refreshRate time.Duration, scp *scprime.Client) {
 	for range time.Tick(time.Minute * refreshRate) {
-		updateMetrics(sc)
+		updateMetrics(scp)
 	}
 }
 
 // updateMetrics calls the various metric collection functions
-func updateMetrics(sc *sia.Client) {
+func updateMetrics(scp *scprime.Client) {
 
 	log.Debug("Updating metrics for modules:", module)
 
 	log.Debug("Updating Daemon Metrics")
-	daemonMetrics(sc)
+	daemonMetrics(scp)
 
 	if strings.Contains(module, "r") {
 		log.Debug("Updating Renter Metrics")
-		renterMetrics(sc)
+		renterMetrics(scp)
 		log.Debug("Updating hostdb Metrics")
-		hostdbMetrics(sc)
+		hostdbMetrics(scp)
 	}
 
 	if strings.Contains(module, "c") {
 		log.Debug("Updating Consensus Metrics")
-		consensusMetrics(sc)
+		consensusMetrics(scp)
 	}
 
 	if strings.Contains(module, "w") {
 		log.Debug("Updating Wallet Metrics")
-		walletMetrics(sc)
+		walletMetrics(scp)
 	}
 
 	if strings.Contains(module, "g") {
 		log.Debug("Updating Gateway Metrics")
-		gatewayMetrics(sc)
+		gatewayMetrics(scp)
 	}
 
 	if strings.Contains(module, "h") {
 		log.Debug("Updating Host Metrics")
-		hostMetrics(sc)
+		hostMetrics(scp)
 	}
 
 	if strings.Contains(module, "m") {
@@ -122,27 +121,27 @@ func main() {
 
 	// Flags
 	flag.BoolVar(&debug, "debug", false, "Enable debug mode. Warning: generates a lot of output.")
-	address := flag.String("address", "127.0.0.1:4280", "Sia's API address")
-	agent := flag.String("agent", "SiaPrime-Agent", "SiaPrime agent")
-	refresh := flag.Int("refresh", 5, "Frequency to get Metrics from Sia (minutes)")
+	address := flag.String("address", "127.0.0.1:4280", "ScPrime's API address")
+	agent := flag.String("agent", "SiaPrime-Agent", "ScPrime agent")
+	refresh := flag.Int("refresh", 5, "Frequency to get Metrics from ScPrime (minutes)")
 	port := flag.Int("port", 4283, "Port to serve Prometheus Metrics on")
-	flag.StringVar(&module, "modules", "cghmrtw", "Sia Modules to monitor")
+	flag.StringVar(&module, "modules", "cghmrtw", "ScPrime Modules to monitor")
 	flag.Parse()
 
 	// Initialize the logger
 	initLogger(debug)
 
-	// Set the Sia Client connection information
-	sc := sia.New(*address)
-	sc.UserAgent = *agent
-	sc.Password = findPassword()
+	// Set the ScPrime Client connection information
+	scp := scprime.New(*address)
+	scp.UserAgent = *agent
+	scp.Password = findPassword()
 
 	// Set the metrics initially before starting the monitor and HTTP server
 	// If you don't do this all the metrics start with a "0" until they are set
-	updateMetrics(sc)
+	updateMetrics(scp)
 
 	// start the metrics collector
-	go startMonitor(time.Duration(*refresh), sc)
+	go startMonitor(time.Duration(*refresh), scp)
 
 	// This section will start the HTTP server and expose
 	// any metrics on the /metrics endpoint.

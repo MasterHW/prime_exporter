@@ -5,7 +5,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"gitlab.com/SiaPrime/SiaPrime/modules"
 	"gitlab.com/SiaPrime/SiaPrime/node/api"
-	sia "gitlab.com/SiaPrime/SiaPrime/node/api/client"
+	scp "gitlab.com/SiaPrime/SiaPrime/node/api/client"
 	"gitlab.com/SiaPrime/errors"
 )
 
@@ -19,11 +19,11 @@ var (
 	renterModuleLoaded = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "renter_module_loaded", Help: "Is the renter module loaded. 0=not loaded.  1=loaded"})
 	renterAggregateNumFiles = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "renter_aggregate_num_files", Help: "Shows the number of files uploaded to Sia by the renter"})
+		Name: "renter_aggregate_num_files", Help: "Shows the number of files uploaded to ScPrime by the renter"})
 	renterAggregateNumStuckChunks = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "renter_aggregate_num_stuck_chunks", Help: "The aggregate number of stuck chunks"})
 	renterAggregateSize = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "renter_aggregate_size", Help: "The aggregate size of data stored on Sia"})
+		Name: "renter_aggregate_size", Help: "The aggregate size of data stored on ScPrime"})
 	renterMaxHealth = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "renter_max_health", Help: "The max health"})
 	renterMinRedundancy = promauto.NewGauge(prometheus.GaugeOpts{
@@ -47,7 +47,7 @@ var (
 		Name: "renter_num_expired_refreshed_contracts", Help: "Number of expired refreshed contracts"})
 	// Allowance
 	renterAllowanceAmount = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "renter_allowance_amount", Help: "Renter allowance Amount (siacoins)"})
+		Name: "renter_allowance_amount", Help: "Renter allowance Amount (SCP)"})
 	renterAllowancePeriod = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "renter_allowance_period", Help: "Renter allowance period length (blocks)"})
 	renterAllowanceRenewWindow = promauto.NewGauge(prometheus.GaugeOpts{
@@ -55,21 +55,21 @@ var (
 	renterAllowanceHosts = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "renter_allowance_hosts", Help: "Renter allowance hosts"})
 	renterAllowanceCurrentSpent = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "renter_allowance_current_spent", Help: "Amount of allowance in Siacoins spent in the current period"})
+		Name: "renter_allowance_current_spent", Help: "Amount of allowance in SCP spent in the current period"})
 	renterAllowanceCurrentUnspent = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "renter_allowance_current_unspent", Help: "Unspent amount of allowance in Siacoins in the current period"})
+		Name: "renter_allowance_current_unspent", Help: "Unspent amount of allowance in SCP in the current period"})
 	renterAllowanceCurrentStorage = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "renter_allowance_current_storage", Help: "Amount of allowance in Siacoins spent in the current period on storage"})
+		Name: "renter_allowance_current_storage", Help: "Amount of allowance in SCP spent in the current period on storage"})
 	renterAllowanceCurrentUpload = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "renter_allowance_current_upload", Help: "Amount of allowance in Siacoins spent in the current period on upload bandwidth"})
+		Name: "renter_allowance_current_upload", Help: "Amount of allowance in SCP spent in the current period on upload bandwidth"})
 	renterAllowanceCurrentDownload = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "renter_allowance_current_download", Help: "Amount of allowance in Siacoins spent in the current period on download bandwidth"})
+		Name: "renter_allowance_current_download", Help: "Amount of allowance in SCP spent in the current period on download bandwidth"})
 	renterAllowanceCurrentFees = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "renter_allowance_current_fees", Help: "Amount of allowance in Siacoins spent in the current period on fees"})
+		Name: "renter_allowance_current_fees", Help: "Amount of allowance in SCP spent in the current period on fees"})
 	renterAllowanceCurrentUnspentAllocated = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "renter_allowance_current_unspent_allocated", Help: "Amount of allocated unspent allowance in Siacoins"})
+		Name: "renter_allowance_current_unspent_allocated", Help: "Amount of allocated unspent allowance in SCP"})
 	renterAllowanceCurrentUnspentUnallocated = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "renter_allowance_current_unspent_unallocated", Help: "Amount of unallocated unspent allowance in Siacoins"})
+		Name: "renter_allowance_current_unspent_unallocated", Help: "Amount of unallocated unspent allowance in SCP"})
 
 	// Consensus Metrics
 	consensusModuleLoaded = promauto.NewGauge(prometheus.GaugeOpts{
@@ -95,15 +95,15 @@ var (
 	walletLocked = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "wallet_locked", Help: "Is the wallet locked. 0=not locked.  1=locked"})
 	walletConfirmedSiacoinBalanceHastings = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "wallet_confirmed_siacoin_balance_hastings", Help: "Wallet confirmed Siacoin balance (Hastings)"})
+		Name: "wallet_confirmed_siacoin_balance_hastings", Help: "Wallet confirmed SCP balance (Hastings)"})
 	walletConfirmedSiacoinBalance = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "wallet_confirmed_siacoin_balance", Help: "Wallet confirmed Siacoin balance (Siacoins)"})
+		Name: "wallet_confirmed_siacoin_balance", Help: "Wallet confirmed SCP balance"})
 	walletSiafundBalance = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "wallet_siafund_balance", Help: "Wallet Siafund balance"})
 	walletSiafundClaimBalance = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "wallet_siafund_claim_balance", Help: "Wallet Siafund claim balance"})
 	walletNumAddresses = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "wallet_num_addresses", Help: "Number of wallet addresses being tracked by Sia"})
+		Name: "wallet_num_addresses", Help: "Number of wallet addresses being tracked by ScPrime"})
 
 	// Gateway Metrics
 	gatewayModuleLoaded = promauto.NewGauge(prometheus.GaugeOpts{
@@ -137,9 +137,9 @@ var (
 	hostWindowSize = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "host_window_size", Help: "Window Size in hours"})
 	hostCollateral = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "host_collateral", Help: "Host Collateral in Siacoins"})
+		Name: "host_collateral", Help: "Host Collateral in SCP"})
 	hostCollateralBudget = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "host_collateral_budget", Help: "Host Collateral budget in Siacoins"})
+		Name: "host_collateral_budget", Help: "Host Collateral budget in SCP"})
 	hostMaxCollateral = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "host_max_collateral", Help: "Max collateral per contract"})
 	hostContractCount = promauto.NewGauge(prometheus.GaugeOpts{
@@ -150,7 +150,7 @@ const (
 	moduleNotReadyStatus = "Module not loaded or still starting up"
 )
 
-func hostMetrics(sc *sia.Client) {
+func hostMetrics(sc *scp.Client) {
 	hg, err := sc.HostGet()
 	if errors.Contains(err, ErrAPICallNotRecognized) {
 		// Assume module is not loaded if status command is not recognized.
@@ -206,7 +206,7 @@ func hostMetrics(sc *sia.Client) {
 
 }
 
-func renterMetrics(sc *sia.Client) {
+func renterMetrics(sc *scp.Client) {
 
 	// Renter Get Dir Metrics
 	rg, err := sc.RenterGetDir(modules.RootSiaPath())
@@ -281,7 +281,7 @@ func renterMetrics(sc *sia.Client) {
 
 // consensuMetrics retrieves and sets the Prometheus metrics related to the
 // consensus module
-func consensusMetrics(sc *sia.Client) {
+func consensusMetrics(sc *scp.Client) {
 	cs, err := sc.ConsensusGet()
 	if errors.Contains(err, ErrAPICallNotRecognized) {
 		log.Info("Consensus module is not loaded")
@@ -300,8 +300,8 @@ func consensusMetrics(sc *sia.Client) {
 }
 
 // daemonMetrics retrieves and sets the Prometheus metrics related to the
-// Sia daemon
-func daemonMetrics(sc *sia.Client) {
+// ScPrime daemon
+func daemonMetrics(sc *scp.Client) {
 	//al, err := sc.DaemonAlertsGet()
 	//if err != nil {
 	//	log.Info("Could not get Daemon metrics")
@@ -321,8 +321,8 @@ func daemonMetrics(sc *sia.Client) {
 }
 
 // walletMetrics retrieves and sets the Prometheus metrics related to the
-// Sia wallet
-func walletMetrics(sc *sia.Client) {
+// ScPrime wallet
+func walletMetrics(sc *scp.Client) {
 	status, err := sc.WalletGet()
 	if errors.Contains(err, ErrAPICallNotRecognized) {
 		log.Info("Wallet module is not loaded")
@@ -356,8 +356,8 @@ func walletMetrics(sc *sia.Client) {
 }
 
 // gatewayMetrics retrieves and sets the Prometheus metrics related to the
-// Sia gateway
-func gatewayMetrics(sc *sia.Client) {
+// ScPrime gateway
+func gatewayMetrics(sc *scp.Client) {
 	gateway, err := sc.GatewayGet()
 	if errors.Contains(err, ErrAPICallNotRecognized) {
 		log.Info("Gateway module is not loaded")
@@ -375,8 +375,8 @@ func gatewayMetrics(sc *sia.Client) {
 }
 
 // hostdbMetrics retrieves and sets the Prometheus metrics related to the
-// Sia hostdb
-func hostdbMetrics(sc *sia.Client) {
+// ScPrime hostdb
+func hostdbMetrics(sc *scp.Client) {
 	hostdb, err := sc.HostDbAllGet()
 	if errors.Contains(err, ErrAPICallNotRecognized) {
 		log.Info("HostDB module is not loaded")
