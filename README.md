@@ -38,7 +38,7 @@ graph. The whole workflow can be broken down into 3step.
 
 ## How do I get prime_exporter?
 `prime_exporter` can be found on GitHub at
-https://github.com/MasterHW/prime_exporter/releases/ (Windows only at the moment).
+https://github.com/MasterHW/prime_exporter/releases/.
 Simply download the executable and run it on the same system as your ScPrime instance.
 
 
