@@ -68,8 +68,9 @@ Usage of ./prime_exporter:
   -refresh int
         Frequency to get Metrics from ScPrime (minutes) (default 5)
 ```
-After installing prometheus, configure your prometheus.yaml file to scrape the
-new `prime_exporter` metrics.
+After installing prometheus (guide here
+https://prometheus.io/docs/prometheus/latest/getting_started/), configure your
+prometheus.yaml file to scrape the new `prime_exporter` metrics.
 Below is a sample prometheus.yaml file scraping a single `prime_exporter`
 endpoint. Don't forget to change the IP address to the IP address of the node
 running prime_exporter.
